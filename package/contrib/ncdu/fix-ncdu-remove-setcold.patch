@@ -1,0 +1,74 @@
+diff -ur ncdu-2.7-orig/src/bin_export.zig ncdu-2.7/src/bin_export.zig
+--- ncdu-2.7-orig/src/bin_export.zig	2024-11-17 10:15:27.000000000 +0100
++++ ncdu-2.7/src/bin_export.zig	2025-03-02 10:21:02.133469488 +0100
+@@ -118,7 +118,6 @@
+     }
+ 
+     fn flush(t: *Thread, expected_len: usize) void {
+-        @setCold(true);
+         const block = createBlock(t);
+         defer block.deinit();
+ 
+diff -ur ncdu-2.7-orig/src/bin_reader.zig ncdu-2.7/src/bin_reader.zig
+--- ncdu-2.7-orig/src/bin_reader.zig	2024-10-26 14:32:01.000000000 +0200
++++ ncdu-2.7/src/bin_reader.zig	2025-03-02 10:21:02.137065064 +0100
+@@ -63,7 +63,6 @@
+ inline fn bigu64(v: [8]u8) u64 { return std.mem.bigToNative(u64, @bitCast(v)); }
+ 
+ fn die() noreturn {
+-    @setCold(true);
+     if (global.lastitem) |e| ui.die("Error reading item {x} from file\n", .{e})
+     else ui.die("Error reading from file\n", .{});
+ }
+diff -ur ncdu-2.7-orig/src/json_export.zig ncdu-2.7/src/json_export.zig
+--- ncdu-2.7-orig/src/json_export.zig	2024-10-26 19:15:11.000000000 +0200
++++ ncdu-2.7/src/json_export.zig	2025-03-02 10:21:02.141081601 +0100
+@@ -73,7 +73,6 @@
+     dir_entry_open: bool = false,
+ 
+     fn flush(ctx: *Writer, bytes: usize) void {
+-        @setCold(true);
+         // This can only really happen when the root path exceeds PATH_MAX,
+         // in which case we would probably have error'ed out earlier anyway.
+         if (bytes > ctx.buf.len) ui.die("Error writing JSON export: path too long.\n", .{});
+diff -ur ncdu-2.7-orig/src/json_import.zig ncdu-2.7/src/json_import.zig
+--- ncdu-2.7-orig/src/json_import.zig	2024-11-14 10:44:56.000000000 +0100
++++ ncdu-2.7/src/json_import.zig	2025-03-02 10:21:02.144739768 +0100
+@@ -83,7 +83,6 @@
+     }
+ 
+     fn fill(p: *Parser) void {
+-        @setCold(true);
+         p.rdoff = 0;
+         p.rdsize = (if (p.zstd) |z| z.read(p.rd, &p.buf) else p.rd.read(&p.buf)) catch |e| switch (e) {
+             error.IsDir => p.die("not a file"), // should be detected at open() time, but no flag for that...
+@@ -133,7 +132,6 @@
+     }
+ 
+     fn stringContentSlow(p: *Parser, buf: []u8, head: u8, off: usize) []u8 {
+-        @setCold(true);
+         var b = head;
+         var n = off;
+         while (true) {
+diff -ur ncdu-2.7-orig/src/main.zig ncdu-2.7/src/main.zig
+--- ncdu-2.7-orig/src/main.zig	2024-11-19 14:41:02.000000000 +0100
++++ ncdu-2.7/src/main.zig	2025-03-02 10:21:02.147880396 +0100
+@@ -63,7 +63,6 @@
+ 
+ // Custom panic impl to reset the terminal before spewing out an error message.
+ pub fn panic(msg: []const u8, error_return_trace: ?*std.builtin.StackTrace, ret_addr: ?usize) noreturn {
+-    @setCold(true);
+     ui.deinit();
+     std.debug.panicImpl(error_return_trace, ret_addr orelse @returnAddress(), msg);
+ }
+diff -ur ncdu-2.7-orig/src/ui.zig ncdu-2.7/src/ui.zig
+--- ncdu-2.7-orig/src/ui.zig	2024-10-26 19:05:03.000000000 +0200
++++ ncdu-2.7/src/ui.zig	2025-03-02 10:21:02.151572522 +0100
+@@ -37,7 +37,6 @@
+ // no clue if ncurses will consistently report OOM, but we're not handling that
+ // right now.
+ pub fn oom() void {
+-    @setCold(true);
+     if (main_thread == std.Thread.getCurrentId()) {
+         const haveui = inited;
+         deinit();
