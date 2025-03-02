@@ -1,0 +1,72 @@
+diff -ru ncdu-2.7-orig2/src/bin_export.zig ncdu-2.7/src/bin_export.zig
+--- ncdu-2.7-orig2/src/bin_export.zig	2025-03-02 11:17:11.000000000 +0100
++++ ncdu-2.7/src/bin_export.zig	2025-03-02 11:35:32.719446077 +0100
+@@ -51,7 +51,7 @@
+ 
+ // Pessimistic upper bound on the encoded size of an item, excluding the name field.
+ // 2 bytes for map start/end, 11 per field (2 for the key, 9 for a full u64).
+-const MAX_ITEM_LEN = 2 + 11 * @typeInfo(ItemKey).Enum.fields.len;
++const MAX_ITEM_LEN = 2 + 11 * @typeInfo(ItemKey).@"enum".fields.len;
+ 
+ pub const CborMajor = enum(u3) { pos, neg, bytes, text, array, map, tag, simple };
+ 
+diff -ru ncdu-2.7-orig2/src/bin_reader.zig ncdu-2.7/src/bin_reader.zig
+--- ncdu-2.7-orig2/src/bin_reader.zig	2025-03-02 11:17:11.000000000 +0100
++++ ncdu-2.7/src/bin_reader.zig	2025-03-02 11:36:10.000977722 +0100
+@@ -337,7 +337,7 @@
+     // Skips over any fields that don't fit into an ItemKey.
+     fn next(r: *ItemParser) ?Field {
+         while (r.key()) |k| {
+-            if (k.major == .pos and k.arg <= std.math.maxInt(@typeInfo(ItemKey).Enum.tag_type)) return .{
++            if (k.major == .pos and k.arg <= std.math.maxInt(@typeInfo(ItemKey).@"enum".tag_type)) return .{
+                 .key = @enumFromInt(k.arg),
+                 .val = r.r.next(),
+             } else {
+diff -ru ncdu-2.7-orig2/src/main.zig ncdu-2.7/src/main.zig
+--- ncdu-2.7-orig2/src/main.zig	2025-03-02 11:17:11.000000000 +0100
++++ ncdu-2.7/src/main.zig	2025-03-02 11:38:35.809411118 +0100
+@@ -592,7 +592,7 @@
+         if (config.binreader and (export_json != null or export_bin != null))
+             bin_reader.import();
+     } else {
+-        var buf = [_]u8{0} ** (std.fs.MAX_PATH_BYTES+1);
++        var buf = [_]u8{0} ** (std.fs.max_path_bytes+1);
+         const path =
+             if (std.posix.realpathZ(scan_dir orelse ".", buf[0..buf.len-1])) |p| buf[0..p.len:0]
+             else |_| (scan_dir orelse ".");
+diff -ru ncdu-2.7-orig2/src/mem_src.zig ncdu-2.7/src/mem_src.zig
+--- ncdu-2.7-orig2/src/mem_src.zig	2024-09-26 15:08:42.000000000 +0200
++++ ncdu-2.7/src/mem_src.zig	2025-03-02 11:55:44.588991175 +0100
+@@ -56,7 +56,7 @@
+ pub fn run(d: *model.Dir) void {
+     const sink_threads = sink.createThreads(1);
+ 
+-    var ctx = .{
++    var ctx = Ctx{
+         .sink = &sink_threads[0],
+         .stat = toStat(&d.entry),
+     };
+diff -ru ncdu-2.7-orig2/src/scan.zig ncdu-2.7/src/scan.zig
+--- ncdu-2.7-orig2/src/scan.zig	2024-10-26 14:27:09.000000000 +0200
++++ ncdu-2.7/src/scan.zig	2025-03-02 12:10:20.056977388 +0100
+@@ -67,7 +67,7 @@
+                 .hasgid = true,
+                 .hasmode = true,
+             },
+-            .mtime = clamp(model.Ext, .mtime, stat.mtime().tv_sec),
++            .mtime = clamp(model.Ext, .mtime, stat.mtime().sec),
+             .uid = truncate(model.Ext, .uid, stat.uid),
+             .gid = truncate(model.Ext, .gid, stat.gid),
+             .mode = truncate(model.Ext, .mode, stat.mode),
+diff -ru ncdu-2.7-orig2/src/ui.zig ncdu-2.7/src/ui.zig
+--- ncdu-2.7-orig2/src/ui.zig	2025-03-02 11:17:11.000000000 +0100
++++ ncdu-2.7/src/ui.zig	2025-03-02 11:36:39.878415669 +0100
+@@ -287,7 +287,7 @@
+         };
+     }
+     break :lbl @Type(.{
+-        .Enum = .{
++        .@"enum" = .{
+             .tag_type = u8,
+             .fields = &fields,
+             .decls = &[_]std.builtin.Type.Declaration{},
