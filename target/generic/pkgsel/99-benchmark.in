@@ -25,6 +25,8 @@ X bash
 X binutils
 X gcc
 X linux-header
+X libffi
+X pcre2
 X glib
 X dietlibc
 X bison
