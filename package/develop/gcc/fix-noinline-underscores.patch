@@ -1,0 +1,31 @@
+--- gcc-14.2.0/libgcc/unwind-dw2.c.vanilla	2025-03-20 18:16:46.916408509 +0100
++++ gcc-14.2.0/libgcc/unwind-dw2.c	2025-03-20 18:17:18.940924041 +0100
+@@ -944,7 +944,7 @@
+    instruction sequence to decode, current register information and
+    CIE info, and the PC range to evaluate.  */
+ 
+-static void  __attribute__ ((__noinline__))
++static void  __attribute__ ((noinline))
+ execute_cfa_program_generic (const unsigned char *insn_ptr,
+ 			     const unsigned char *insn_end,
+ 			     struct _Unwind_Context *context,
+@@ -1362,7 +1362,7 @@
+ }
+ 
+ static void _Unwind_DebugHook (void *, void *)
+-  __attribute__ ((__noinline__, __used__, __noclone__));
++  __attribute__ ((noinline, __used__, __noclone__));
+ 
+ /* This function is called during unwinding.  It is intended as a hook
+    for a debugger to intercept exceptions.  CFA is the CFA of the
+--- gcc-14.2.0/libgcc/strub.c.vanilla	2025-03-20 18:17:00.599926405 +0100
++++ gcc-14.2.0/libgcc/strub.c	2025-03-20 18:17:17.945648775 +0100
+@@ -38,7 +38,7 @@
+ 
+ /* Make sure these builtins won't be inlined, even with LTO.  */
+ #define ATTRIBUTE_NOINLINE \
+-  __attribute__ ((__noinline__, __noclone__, __noipa__))
++  __attribute__ ((noinline, __noclone__, __noipa__))
+ 
+ #define ATTRIBUTE_STRUB_CALLABLE \
+   __attribute__ ((__strub__ ("callable"))) ATTRIBUTE_NOINLINE
