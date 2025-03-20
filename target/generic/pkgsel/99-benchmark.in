@@ -24,6 +24,7 @@ X automake
 X bash
 X binutils
 X gcc
+X linux-header
 X glib
 X dietlibc
 X bison
