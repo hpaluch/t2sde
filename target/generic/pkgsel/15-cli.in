@@ -19,7 +19,8 @@ X dhcp
 X dialog
 X bzip2
 X xz
-#X lzo
+# lzo required by btrfs-progs
+X lzo
 X lzip
 X cron
 X disktype
