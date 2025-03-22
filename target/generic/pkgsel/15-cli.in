@@ -24,7 +24,8 @@ X lzo
 X lzip
 X cron
 X disktype
-#X embutils
+# required by linux
+X embutils
 X expat
 X fget
 X ipconfig
@@ -42,7 +43,7 @@ X squashfs-tools
 #X xfsprogs
 #X jfsutils
 X libaio
-#X lvm2
+X lvm2
 X libgpg-error
 X json-c
 X libgcrypt
@@ -155,6 +156,10 @@ X ntp
 X lm_sensors
 #X stressapptest
 X tmux
+
+# required by iso creator - parted and bin/sh
+X parted
+X mksh
 
 #X llvm
 #X clang
